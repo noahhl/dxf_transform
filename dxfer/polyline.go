@@ -25,6 +25,12 @@ func (p *Polyline) Scale(scaleFactor float64) {
 	}
 }
 
+func (p *Polyline) Center() {
+	xmin, ymin, xmax, ymax := p.BoundingBox()
+
+	p.Translate((xmin-xmax)/2.0, (ymin-ymax)/2.0)
+}
+
 func (p *Polyline) Rotate(theta float64) {
 
 	for j := range p.Vertices {
