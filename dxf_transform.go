@@ -13,7 +13,7 @@ func main() {
 
 	var inputFile, outputFile string
 	var translate, closePoly bool
-	var scaleFactor, rotate float64
+	var scaleFactor, rotate, tolerance float64
 
 	flag.StringVar(&inputFile, "in", "", "path to input DXF")
 	flag.StringVar(&outputFile, "out", "", "path to write DXF to")
@@ -21,6 +21,7 @@ func main() {
 	flag.BoolVar(&closePoly, "close", false, "close polylines")
 	flag.Float64Var(&scaleFactor, "scale", 0.0, "scale relative to origin")
 	flag.Float64Var(&rotate, "rotate", 0.0, "rotate about origin (prior to translating)")
+	flag.Float64Var(&tolerance, "tolerance", 0.0, "simplification tolerance (in output units/scale)")
 
 	flag.Parse()
 
@@ -69,6 +70,10 @@ func main() {
 			fmt.Printf("Scaling entity #%v by %v\n", i, scaleFactor)
 			polyline.Scale(scaleFactor)
 			fmt.Printf("%v\n", polyline.Summary())
+		}
+
+		if tolerance > 0.0 {
+			polyline.Simplify(tolerance)
 		}
 	}
 

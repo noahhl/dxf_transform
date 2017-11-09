@@ -25,6 +25,23 @@ func (p *Polyline) Scale(scaleFactor float64) {
 	}
 }
 
+func (p *Polyline) Simplify(tolerance float64) {
+	//remove points if they are less than tolerance from both of their neigbhors
+	newVertices := make([][]float64, 0)
+	newVertices = append(newVertices, p.Vertices[0])
+	for j := 1; j < len(p.Vertices)-1; j++ {
+
+		distanceToPrevNeighbor := math.Sqrt(math.Pow(p.Vertices[j][0]-newVertices[len(newVertices)-1][0], 2) + math.Pow(p.Vertices[j][1]-newVertices[len(newVertices)-1][1], 2))
+		distanceToNextNeighbor := math.Sqrt(math.Pow(p.Vertices[j][0]-p.Vertices[j+1][0], 2) + math.Pow(p.Vertices[j][1]-p.Vertices[j+1][1], 2))
+		if distanceToPrevNeighbor > tolerance || distanceToNextNeighbor > tolerance {
+			newVertices = append(newVertices, p.Vertices[j])
+		}
+	}
+	fmt.Printf("Simplifying with tolerance %v removed %v of %v points\n", tolerance, len(p.Vertices)-len(newVertices), len(p.Vertices))
+	p.Vertices = newVertices
+	p.Num = len(newVertices)
+}
+
 func (p *Polyline) Center() {
 	xmin, ymin, xmax, ymax := p.BoundingBox()
 
