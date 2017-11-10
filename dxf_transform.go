@@ -30,6 +30,19 @@ func main() {
 		panic(err)
 	}
 
+	var globalMinX = math.MaxFloat64
+	var globalMinY = math.MaxFloat64
+
+	for _, e := range drawing.Entities() {
+		p := dxfer.Polyline{e.(*entity.LwPolyline)}
+		localMinX, localMinY, _, _ := p.BoundingBox()
+		if localMinX < globalMinX {
+			globalMinX = localMinX
+		}
+		if localMinY < globalMinY {
+			globalMinY = localMinY
+		}
+	}
 	for i, e := range drawing.Entities() {
 		polyline := dxfer.Polyline{e.(*entity.LwPolyline)}
 		fmt.Printf("\n%v\n", polyline.Summary())
@@ -49,19 +62,6 @@ func main() {
 
 		if translate {
 			//Find global min and max
-			var globalMinX = math.MaxFloat64
-			var globalMinY = math.MaxFloat64
-
-			for _, e := range drawing.Entities() {
-				p := dxfer.Polyline{e.(*entity.LwPolyline)}
-				localMinX, localMinY, _, _ := p.BoundingBox()
-				if localMinX < globalMinX {
-					globalMinX = localMinX
-				}
-				if localMinY < globalMinY {
-					globalMinY = localMinY
-				}
-			}
 			fmt.Printf("Translating entity #%v to have a lower left corner of 0,0\n", i)
 			polyline.Translate(-1*globalMinX, -1*globalMinY)
 			fmt.Printf("%v\n", polyline.Summary())
