@@ -68,12 +68,33 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+
+			var drawingXMin = math.MaxFloat64
+			var drawingYMin = math.MaxFloat64
+			var drawingXMax = -math.MaxFloat64
+			var drawingYMax = -math.MaxFloat64
 			for _, e := range drawing.Entities() {
 				p := dxfer.Polyline{e.(*entity.LwPolyline)}
-				p.Center()
+				lineMinX, lineMinY, lineMaxX, lineMaxY := p.BoundingBox()
+				if lineMinX < drawingXMin {
+					drawingXMin = lineMinX
+				}
+				if lineMinY < drawingYMin {
+					drawingYMin = lineMinY
+				}
+				if lineMaxX > drawingXMax {
+					drawingXMax = lineMaxX
+				}
+				if lineMaxY > drawingYMax {
+					drawingYMax = lineMaxY
+				}
+			}
+
+			for _, e := range drawing.Entities() {
+				p := dxfer.Polyline{e.(*entity.LwPolyline)}
+				p.Translate((drawingXMin-drawingXMax)/2.0, (drawingYMin-drawingYMax)/2.0)
 				p.Rotate(-1.0 * f.Rot * math.Pi / 180.0)
 				p.Translate(f.X, f.Y)
-				fmt.Printf("%v: %v\n", f.File, p.Summary())
 				combinedDraw.AddEntity(p)
 				polylines = append(polylines, p)
 			}
