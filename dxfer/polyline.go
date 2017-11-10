@@ -31,9 +31,10 @@ func (p *Polyline) Simplify(tolerance float64) {
 	newVertices = append(newVertices, p.Vertices[0])
 	for j := 1; j < len(p.Vertices)-1; j++ {
 
-		distanceToPrevNeighbor := math.Sqrt(math.Pow(p.Vertices[j][0]-newVertices[len(newVertices)-1][0], 2) + math.Pow(p.Vertices[j][1]-newVertices[len(newVertices)-1][1], 2))
-		distanceToNextNeighbor := math.Sqrt(math.Pow(p.Vertices[j][0]-p.Vertices[j+1][0], 2) + math.Pow(p.Vertices[j][1]-p.Vertices[j+1][1], 2))
-		if distanceToPrevNeighbor > tolerance || distanceToNextNeighbor > tolerance {
+		distanceFromNeighborLine := math.Abs((p.Vertices[j+1][1]-newVertices[len(newVertices)-1][1])*p.Vertices[j][0]-(p.Vertices[j+1][0]-newVertices[len(newVertices)-1][0])*p.Vertices[j][1]+p.Vertices[j+1][0]*newVertices[len(newVertices)-1][1]-newVertices[len(newVertices)-1][0]*p.Vertices[j+1][1]) /
+			math.Sqrt(math.Pow(p.Vertices[j+1][0]-newVertices[len(newVertices)-1][0], 2)+math.Pow(p.Vertices[j+1][1]-newVertices[len(newVertices)-1][1], 2))
+
+		if distanceFromNeighborLine > tolerance {
 			newVertices = append(newVertices, p.Vertices[j])
 		}
 	}
@@ -42,10 +43,9 @@ func (p *Polyline) Simplify(tolerance float64) {
 	p.Num = len(newVertices)
 }
 
-func (p *Polyline) Center() {
+func (p *Polyline) Center() (float64, float64) {
 	xmin, ymin, xmax, ymax := p.BoundingBox()
-
-	p.Translate((xmin-xmax)/2.0, (ymin-ymax)/2.0)
+	return (xmax - xmin) / 2.0, (ymax - ymin) / 2.0
 }
 
 func (p *Polyline) Rotate(theta float64) {
@@ -84,5 +84,6 @@ func (p *Polyline) BoundingBox() (float64, float64, float64, float64) {
 
 func (p *Polyline) Summary() string {
 	xmin, ymin, xmax, ymax := p.BoundingBox()
-	return fmt.Sprintf("Object with bounding box of: (%v,%v) to (%v,%v)", xmin, ymin, xmax, ymax)
+	xcenter, ycenter := p.Center()
+	return fmt.Sprintf("Object with bounding box of: (%v,%v) to (%v,%v), centerpoint (%v,%v)", xmin, ymin, xmax, ymax, xcenter, ycenter)
 }
